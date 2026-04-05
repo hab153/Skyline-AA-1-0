@@ -1,0 +1,24 @@
+{
+  "name": "skyline-backend",
+  "version": "1.0.0",
+  "description": "Skyline AA-1 - GPT-4o Powered",
+  "main": "server.js",
+  "bin": {
+    "skyline": "./cli.js"
+  },
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js",
+    "cli": "node cli.js"
+  },
+  "dependencies": {
+    "adm-zip": "^0.5.17",
+    "chalk": "^4.1.2",
+    "commander": "^14.0.3",
+    "dotenv": "^16.6.1",
+    "openai": "^4.0.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2"
+  }
+}

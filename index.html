@@ -1,0 +1,961 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Skyline AA-1 | Week 34 Edition</title>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --accent: #3b82f6;
+            --accent-hover: #2563eb;
+            --success: #10b981;
+            --error: #ef4444;
+            --code-bg: #0d1117;
+            --border: #334155;
+            --warning: #f59e0b;
+            --export: #8b5cf6;
+            --memory: #ec4899;
+            --package: #14b8a6;
+            --security: #f43f5e;
+            --milestone: #8b5cf6;
+            --docs: #0ea5e9;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 900px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 20px;            border-bottom: 1px solid var(--border);
+            padding-bottom: 20px;
+            position: relative;
+        }
+        h1 { font-size: 2.5rem; background: linear-gradient(to right, #3b82f6, #8b5cf6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        p { color: var(--text-secondary); margin-top: 5px; }
+        
+        /* 🆕 WEEK 34: Server Status Indicator */
+        .server-status {
+            position: absolute;
+            top: 0;
+            right: 0;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.85rem;
+            background: rgba(15, 23, 42, 0.8);
+            padding: 4px 10px;
+            border-radius: 20px;
+            border: 1px solid var(--border);
+        }
+        .status-dot { width: 8px; height: 8px; border-radius: 50%; background-color: var(--text-secondary); transition: background-color 0.3s; }
+        
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid var(--border);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        label { display: block; margin-bottom: 8px; font-weight: 600; color: var(--text-secondary); }
+        
+        textarea {
+            width: 100%;
+            height: 120px;
+            background-color: var(--code-bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: #a5b4fc;
+            padding: 15px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 1rem;
+            resize: vertical;
+            outline: none;
+            transition: all 0.3s;
+        }
+        textarea.json-mode { font-family: 'Courier New', Courier, monospace; font-size: 0.9rem; }
+        textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2); }
+        textarea:disabled { opacity: 0.5; cursor: not-allowed; }        .controls { display: flex; gap: 10px; margin-top: 15px; flex-wrap: wrap; align-items: center; }
+
+        select {
+            padding: 10px 15px;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            outline: none;
+            cursor: pointer;
+        }
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        button:hover { transform: translateY(-1px); }
+        button:active { transform: translateY(0); }
+
+        .btn-generate { background-color: var(--accent); color: white; flex: 1; justify-content: center; }
+        .btn-generate:hover { background-color: var(--accent-hover); }
+        .btn-generate:disabled { background-color: var(--text-secondary); cursor: not-allowed; transform: none; }
+
+        .btn-test { background-color: var(--success); color: white; flex: 1; justify-content: center; }
+        .btn-test:hover { background-color: #059669; }
+        .btn-test:disabled { background-color: var(--text-secondary); cursor: not-allowed; opacity: 0.7; transform: none; }
+
+        .btn-copy { background-color: var(--card-bg); border: 1px solid var(--border); color: var(--text-primary); }
+        .btn-copy:hover { background-color: var(--border); }
+
+        /* 🆕 NEW: Copy All Button Style */
+        .btn-copy-all { background-color: var(--card-bg); border: 1px solid var(--accent); color: var(--accent); }
+        .btn-copy-all:hover { background-color: var(--accent); color: white; }
+
+        .btn-download { background-color: var(--export); color: white; }
+        .btn-download:hover { background-color: #7c3aed; }
+        
+        .btn-clear-memory { background-color: var(--memory); color: white; font-size: 0.8rem; padding: 8px 15px; }
+        .btn-clear-memory:hover { background-color: #db2777; }
+
+        .checkbox-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 8px;            color: var(--text-secondary);
+            font-size: 0.9rem;
+            background: var(--bg-color);
+            padding: 8px 12px;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            cursor: pointer;
+        }
+        .checkbox-wrapper input { cursor: pointer; }
+
+        .output-area { position: relative; }
+        
+        .file-tabs {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 10px;
+            overflow-x: auto;
+            padding-bottom: 5px;
+            border-bottom: 1px solid var(--border);
+        }
+        .file-tab {
+            padding: 8px 15px;
+            background-color: transparent;
+            border: 1px solid transparent;
+            border-radius: 6px 6px 0 0;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 0.85rem;
+            white-space: nowrap;
+            transition: all 0.2s;
+        }
+        .file-tab:hover { color: var(--text-primary); background-color: rgba(255,255,255,0.05); }
+        .file-tab.active {
+            background-color: var(--code-bg);
+            color: var(--accent);
+            border-color: var(--border);
+            border-bottom-color: var(--code-bg);
+            font-weight: bold;
+        }
+        .file-tab[data-type="docs"].active {
+            color: var(--docs);
+            border-color: var(--docs);
+            border-bottom-color: var(--code-bg);
+        }
+
+        pre, .markdown-content {
+            background-color: var(--code-bg);
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;            border: 1px solid var(--border);
+            min-height: 200px;
+            color: #e2e8f0;
+            font-family: 'Courier New', Courier, monospace;
+            white-space: pre-wrap;
+            line-height: 1.6;
+        }
+
+        .markdown-content { font-family: 'Segoe UI', sans-serif; }
+        .markdown-content h1, .markdown-content h2, .markdown-content h3 { color: var(--text-primary); margin-top: 1.5em; margin-bottom: 0.5em; }
+        .markdown-content h1 { font-size: 1.8rem; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
+        .markdown-content h2 { font-size: 1.4rem; color: var(--accent); }
+        .markdown-content p { margin-bottom: 1em; color: var(--text-secondary); }
+        .markdown-content code { background: rgba(255,255,255,0.1); padding: 2px 6px; border-radius: 4px; font-family: 'Courier New', monospace; color: var(--warning); }
+        .markdown-content pre { background: rgba(0,0,0,0.3); padding: 15px; border: none; }
+        .markdown-content ul, .markdown-content ol { margin-left: 20px; margin-bottom: 1em; color: var(--text-secondary); }
+        .markdown-content li { margin-bottom: 5px; }
+        .markdown-content table { width: 100%; border-collapse: collapse; margin: 1em 0; }
+        .markdown-content th, .markdown-content td { border: 1px solid var(--border); padding: 8px; text-align: left; }
+        .markdown-content th { background-color: rgba(255,255,255,0.05); color: var(--text-primary); }
+        .markdown-content blockquote { border-left: 4px solid var(--warning); padding-left: 15px; color: var(--text-secondary); font-style: italic; }
+
+        .status-bar { margin-top: 10px; font-size: 0.9rem; display: flex; justify-content: space-between; color: var(--text-secondary); }
+        .status-success { color: var(--success); }
+        .status-error { color: var(--error); }
+        .status-warning { color: var(--warning); }
+        
+        .result-box { margin-top: 15px; padding: 15px; border-radius: 8px; background-color: var(--code-bg); border: 1px solid var(--border); display: none; }
+        .result-box.visible { display: block; }
+        .result-pass { border-color: var(--success); color: var(--success); }
+        .result-fail { border-color: var(--error); color: var(--error); }
+        .result-auto { border-color: var(--warning); color: var(--warning); }
+
+        .correction-log { margin-top: 10px; padding: 10px; background: rgba(245, 158, 11, 0.1); border-left: 3px solid var(--warning); font-size: 0.85rem; color: var(--text-secondary); }
+        .toggle-link { font-size: 0.85rem; color: var(--accent); cursor: pointer; text-decoration: underline; margin-left: auto; }
+
+        /* Panels */
+        .memory-panel { background: rgba(236, 72, 153, 0.1); border: 1px solid var(--memory); border-radius: 8px; padding: 15px; font-size: 0.9rem; }
+        .memory-title { color: var(--memory); font-weight: bold; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
+        .memory-list { list-style: none; color: var(--text-secondary); }
+        .memory-list li { margin-bottom: 4px; }
+        .memory-list strong { color: var(--text-primary); }
+
+        .dependencies-panel { background: rgba(20, 184, 166, 0.1); border: 1px solid var(--package); border-radius: 8px; padding: 15px; font-size: 0.9rem; display: none; }
+        .dependencies-panel.visible { display: block; }
+        .dependencies-title { color: var(--package); font-weight: bold; margin-bottom: 8px; }
+        .dependencies-list { list-style: none; color: var(--text-secondary); }
+        .dependencies-list li { margin-bottom: 4px; display: flex; justify-content: space-between; }
+        .install-cmd { background: var(--code-bg); padding: 8px; border-radius: 4px; font-family: monospace; color: var(--package); margin-top: 8px; display: block; font-size: 0.85rem; }
+        .security-panel { background: rgba(244, 63, 94, 0.1); border: 1px solid var(--security); border-radius: 8px; padding: 15px; font-size: 0.9rem; display: none; }
+        .security-panel.visible { display: block; }
+        .security-title { color: var(--security); font-weight: bold; margin-bottom: 8px; display: flex; justify-content: space-between; }
+        .security-score { font-size: 1.1rem; }
+        .security-list { list-style: none; color: var(--text-secondary); margin-top: 8px; }
+        .security-list li { margin-bottom: 4px; padding: 4px; background: rgba(0,0,0,0.2); border-radius: 4px; }
+        .severity-CRITICAL { color: #ef4444; font-weight: bold; }
+        .severity-HIGH { color: #f97316; font-weight: bold; }
+        .severity-LOW { color: #eab308; }
+
+        .milestone-panel { background: rgba(139, 92, 246, 0.1); border: 1px solid var(--milestone); border-radius: 8px; padding: 15px; font-size: 0.9rem; display: none; }
+        .milestone-panel.visible { display: block; }
+        .milestone-title { color: var(--milestone); font-weight: bold; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
+        .milestone-badge { background: var(--milestone); color: white; padding: 2px 8px; border-radius: 12px; font-size: 0.75rem; }
+        .milestone-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 10px; margin-top: 10px; }
+        .milestone-stat { background: rgba(0,0,0,0.2); padding: 8px; border-radius: 6px; text-align: center; }
+        .milestone-stat-value { font-size: 1.2rem; font-weight: bold; color: var(--text-primary); }
+        .milestone-stat-label { font-size: 0.75rem; color: var(--text-secondary); }
+        .milestone-message { margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border); font-style: italic; color: var(--text-secondary); }
+
+        .spinner { display: none; width: 20px; height: 20px; border: 3px solid rgba(255,255,255,0.3); border-radius: 50%; border-top-color: white; animation: spin 1s ease-in-out infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        
+        .graph-container { background-color: var(--code-bg); border: 1px solid var(--border); border-radius: 8px; min-height: 200px; display: none; justify-content: center; align-items: center; overflow: auto; padding: 20px; }
+        .graph-container.visible { display: flex; }
+        
+        .btn-view { background-color: var(--bg-color); border: 1px solid var(--accent); color: var(--accent); }
+        .btn-view.active { background-color: var(--accent); color: white; }
+        .btn-view[data-mode="docs"] { border-color: var(--docs); color: var(--docs); }
+        .btn-view[data-mode="docs"].active { background-color: var(--docs); color: white; }
+
+        /* 🆕 WEEK 34: Toast Notifications */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .toast {
+            background: var(--card-bg);
+            border-left: 4px solid var(--accent);
+            padding: 15px 20px;
+            border-radius: 8px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            gap: 12px;            min-width: 300px;
+            max-width: 400px;
+            color: var(--text-primary);
+            transition: all 0.3s ease;
+            opacity: 1;
+            transform: translateX(0);
+        }
+        .toast-success { border-left-color: var(--success); }
+        .toast-error { border-left-color: var(--error); }
+        .toast-warning { border-left-color: var(--warning); }
+        .toast-icon { font-size: 1.2rem; }
+        .toast-content { flex: 1; }
+        .toast-content strong { display: block; font-size: 0.9rem; margin-bottom: 2px; }
+        .toast-content p { font-size: 0.85rem; color: var(--text-secondary); margin: 0; }
+        .toast-close {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 1.2rem;
+            padding: 0;
+            margin: 0;
+        }
+        .toast-close:hover { color: var(--text-primary); }
+
+        /* 🆕 WEEK 34: Feedback Widget */
+        .feedback-widget {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .feedback-question { font-size: 0.9rem; color: var(--text-secondary); }
+        .feedback-buttons { display: flex; gap: 10px; }
+        .btn-feedback {
+            background: var(--bg-color);
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            padding: 6px 12px;
+            font-size: 1.2rem;
+        }
+        .btn-feedback:hover { background: var(--card-bg); color: var(--text-primary); }
+        .btn-feedback.active { background: var(--success); color: white; border-color: var(--success); }
+    </style>
+</head>
+<body>
+    <!-- 🆕 WEEK 34: Toast Container -->
+    <div id="toast-container" class="toast-container"></div>
+    <div class="container">
+        <header>
+            <h1>🏙️ Skyline AA-1</h1>
+            <p>Intelligent Multi-Language Code Generator (Week 34)</p>
+            <!-- 🆕 WEEK 34: Server Status -->
+            <div class="server-status">
+                <div id="server-status-dot" class="status-dot"></div>
+                <span id="server-status-text">Checking...</span>
+            </div>
+        </header>
+
+        <!-- 🆕 WEEK 24: Memory Status Card -->
+        <div class="card memory-panel">
+            <div class="memory-title">
+                <span>🧠 Context Memory</span>
+                <button class="btn-clear-memory" onclick="clearMemory()">Clear Memory</button>
+            </div>
+            <ul id="memoryList" class="memory-list">
+                <li>Loading memory...</li>
+            </ul>
+        </div>
+
+        <!-- 🆕 WEEK 30: Milestone Report Card -->
+        <div id="milestoneCard" class="card milestone-panel">
+            <div class="milestone-title">
+                <span>🎉 Milestone Report v0.5</span>
+                <span id="milestoneBadge" class="milestone-badge">READY</span>
+            </div>
+            <div class="milestone-grid">
+                <div class="milestone-stat"><div id="statScore" class="milestone-stat-value">-</div><div class="milestone-stat-label">Score</div></div>
+                <div class="milestone-stat"><div id="statTests" class="milestone-stat-value">-</div><div class="milestone-stat-label">Tests</div></div>
+                <div class="milestone-stat"><div id="statSecurity" class="milestone-stat-value">-</div><div class="milestone-stat-label">Security</div></div>
+                <div class="milestone-stat"><div id="statFiles" class="milestone-stat-value">-</div><div class="milestone-stat-label">Files</div></div>
+            </div>
+            <div id="milestoneMessage" class="milestone-message"></div>
+        </div>
+
+        <!-- 🆕 WEEK 28: Security Status Card -->
+        <div id="securityCard" class="card security-panel">
+            <div class="security-title">
+                <span>🛡️ Security Status</span>
+                <span id="securityScore" class="security-score">100/100</span>
+            </div>
+            <ul id="securityList" class="security-list"></ul>
+        </div>
+
+        <!-- 🆕 WEEK 27: Dependencies Card -->
+        <div id="dependenciesCard" class="card dependencies-panel">
+            <div class="dependencies-title">📦 Detected Dependencies</div>            <ul id="dependenciesList" class="dependencies-list"></ul>
+            <code id="installCmd" class="install-cmd" style="display:none;"></code>
+        </div>
+        <!-- Input Section -->
+        <div class="card">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <label for="textInput" id="inputLabel">1. Describe Logic (English)</label>
+                <span class="toggle-link" onclick="toggleInputMode()">Switch to Raw JSON</span>
+            </div>
+            <textarea id="textInput" placeholder='e.g., "Validate email contains @ and password > 8 chars"'></textarea>
+            <textarea id="rulesInput" class="json-mode" style="display:none;" placeholder='[{ "subject": "email", "operator": "CONTAINS", "value": "@", "dataType": "STRING" }]'></textarea>
+            <div class="controls">
+                <select id="languageSelect">
+                    <option value="javascript">JavaScript (Node.js)</option>
+                    <option value="python">Python</option>
+                </select>
+                <button class="btn-generate" onclick="generateCode()" id="genBtn">
+                    <div class="spinner" id="spinner"></div>
+                    <span id="btnText">✨ Generate Code</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Output Section -->
+        <div class="card output-area">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                <label style="margin:0;">2. Generated Output</label>
+                <div style="display:flex; gap:10px;">
+                    <button class="btn-view" onclick="toggleView('graph')" id="btnViewGraph">👁️ Graph</button>
+                    <button class="btn-view active" onclick="toggleView('code')" id="btnViewCode">💻 Code</button>
+                    <button class="btn-view" onclick="toggleView('docs')" id="btnViewDocs" style="display:none;">📄 Docs</button>
+                    <button class="btn-copy" onclick="copyCode()">📋 Copy</button>
+                    <!-- 🆕 NEW: Copy All Button -->
+                    <button class="btn-copy-all" onclick="copyAllCode()" id="btnCopyAll" style="display:none;">📋 Copy All</button>
+                    <button class="btn-download" onclick="downloadProject()" id="dlBtn">💾 Download</button>
+                </div>
+            </div>
+            
+            <div id="fileTabs" class="file-tabs" style="display:none;"></div>
+            
+            <!-- Code View -->
+            <pre id="outputCode">// Code will appear here...</pre>
+            
+            <!-- 🆕 WEEK 33: Docs View -->
+            <div id="docsOutput" class="markdown-content" style="display:none;"></div>
+
+            <!-- 🆕 WEEK 26: Graph View -->
+            <div id="graphOutput" class="graph-container">
+                <p style="color:var(--text-secondary);">Generate code to see the logic graph.</p>
+            </div>            
+            <div class="status-bar">
+                <span id="statusMsg">Ready</span>
+                <span id="atomCount"></span>
+            </div>
+
+            <!-- 🆕 WEEK 34: Feedback Widget -->
+            <div id="feedbackWidget" class="feedback-widget" style="display:none;">
+                <span class="feedback-question">Was this generation helpful?</span>
+                <div class="feedback-buttons">
+                    <button class="btn-feedback" onclick="submitFeedback('up')" title="Helpful">👍</button>
+                    <button class="btn-feedback" onclick="submitFeedback('down')" title="Not Helpful">👎</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Test Section (Week 19) -->
+        <div class="card">
+            <label for="testDataInput">3. Test Data (Input for Function)</label>
+            <textarea id="testDataInput" style="height: 80px;" placeholder='{ "age": 25, "score": 60 }'>{ "age": 25, "score": 60 }</textarea>
+            <div class="controls">
+                <label class="checkbox-wrapper">
+                    <input type="checkbox" id="autoCorrectCheck">
+                    <span>✨ Enable Auto-Correct</span>
+                </label>
+                <button class="btn-test" onclick="runTest()" id="testBtn">
+                    <div class="spinner" id="testSpinner"></div>
+                    <span id="testBtnText">🧪 Run Test</span>
+                </button>
+            </div>
+            <div id="resultBox" class="result-box">
+                <strong>Result:</strong>
+                <pre id="resultOutput" style="background:transparent; padding:5px; border:none; color:inherit; font-size:0.9rem;"></pre>
+                <div id="correctionLog" class="correction-log" style="display:none;"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 🆕 WEEK 34: Import Notifier -->
+    <script src="ui-notifier.js"></script>
+
+    <script>
+        const API_GENERATE_URL = 'http://localhost:5001/api/generate';
+        const API_VISUALIZE_URL = 'http://localhost:5001/api/visualize';
+        const API_TEST_URL = 'http://localhost:5001/api/test';
+        const API_TEST_AUTO_URL = 'http://localhost:5001/api/test-auto';
+        const API_DOWNLOAD_URL = 'http://localhost:5001/api/download';
+        const API_MEMORY_URL = 'http://localhost:5001/api/memory';
+        const API_CLEAR_MEMORY_URL = 'http://localhost:5001/api/clear-memory';
+                let currentGeneratedCode = '';
+        let currentFiles = [];
+        let currentAtoms = [];
+        let currentReadme = '';
+        let isJsonMode = false;
+        let currentRules = [];
+        let currentDependencies = [];
+        let currentSecurityIssues = [];
+
+        function toggleView(mode) {
+            const codeView = document.getElementById('outputCode');
+            const docsView = document.getElementById('docsOutput');
+            const graphView = document.getElementById('graphOutput');
+            const btnCode = document.getElementById('btnViewCode');
+            const btnDocs = document.getElementById('btnViewDocs');
+            const btnGraph = document.getElementById('btnViewGraph');
+
+            codeView.style.display = 'none';
+            docsView.style.display = 'none';
+            graphView.style.display = 'none';
+            btnCode.classList.remove('active');
+            btnDocs.classList.remove('active');
+            btnGraph.classList.remove('active');
+
+            if (mode === 'graph') {
+                graphView.classList.add('visible');
+                btnGraph.classList.add('active');
+            } else if (mode === 'docs') {
+                docsView.style.display = 'block';
+                btnDocs.classList.add('active');
+            } else {
+                codeView.style.display = 'block';
+                btnCode.classList.add('active');
+            }
+        }
+
+        window.onload = () => {
+            loadMemory();
+            // Server status is checked in ui-notifier.js
+        };
+
+        async function loadMemory() {
+            try {
+                const res = await fetch(API_MEMORY_URL);
+                const data = await res.json();
+                updateMemoryUI(data.memory);
+            } catch (e) { console.error("Failed to load memory", e); }
+        }
+
+        async function clearMemory() {            try {
+                await fetch(API_CLEAR_MEMORY_URL, { method: 'POST' });
+                loadMemory();
+                Notifier.success('Memory cleared successfully!');
+            } catch (e) { Notifier.error('Failed to clear memory'); }
+        }
+
+        function updateMemoryUI(memory) {
+            const list = document.getElementById('memoryList');
+            list.innerHTML = '';
+            if (Object.keys(memory.preferences).length === 0 && memory.fileCount === 0) {
+                list.innerHTML = '<li>No memory yet. Start building!</li>';
+                return;
+            }
+            if (Object.keys(memory.preferences).length > 0) {
+                for (const [key, value] of Object.entries(memory.preferences)) {
+                    const li = document.createElement('li');
+                    li.innerHTML = `<strong>${key}:</strong> ${value}`;
+                    list.appendChild(li);
+                }
+            }
+            if (memory.fileCount > 0) {
+                const li = document.createElement('li');
+                li.innerHTML = `<strong>Files Created:</strong> ${memory.fileCount}`;
+                list.appendChild(li);
+            }
+        }
+
+        function updateSecurityUI(issues, score) {
+            const card = document.getElementById('securityCard');
+            const list = document.getElementById('securityList');
+            const scoreEl = document.getElementById('securityScore');
+            if (!issues || issues.length === 0) { card.classList.remove('visible'); return; }
+            card.classList.add('visible');
+            scoreEl.textContent = `${score}/100`;
+            scoreEl.className = `security-score ${score < 50 ? 'status-error' : (score < 80 ? 'status-warning' : 'status-success')}`;
+            list.innerHTML = '';
+            issues.forEach(issue => {
+                const li = document.createElement('li');
+                li.innerHTML = `<span class="severity-${issue.severity}">${issue.severity}</span>: ${issue.message}`;
+                list.appendChild(li);
+            });
+        }
+
+        function updateDependenciesUI(deps) {
+            const card = document.getElementById('dependenciesCard');
+            const list = document.getElementById('dependenciesList');
+            const cmd = document.getElementById('installCmd');
+            if (!deps || deps.length === 0) { card.classList.remove('visible'); return; }
+            card.classList.add('visible');            list.innerHTML = '';
+            deps.forEach(dep => {
+                const li = document.createElement('li');
+                li.innerHTML = `<span>${dep}</span>`;
+                list.appendChild(li);
+            });
+            cmd.style.display = 'block';
+            cmd.textContent = `npm install ${deps.join(' ')}`;
+        }
+
+        function updateMilestoneUI(report) {
+            const card = document.getElementById('milestoneCard');
+            const badge = document.getElementById('milestoneBadge');
+            const msg = document.getElementById('milestoneMessage');
+            if (!report) { card.classList.remove('visible'); return; }
+            card.classList.add('visible');
+            badge.textContent = report.isReady ? '✅ READY' : '⚠️ REVIEW';
+            badge.style.backgroundColor = report.isReady ? 'var(--success)' : 'var(--warning)';
+            document.getElementById('statScore').textContent = `${report.score}/100`;
+            document.getElementById('statTests').textContent = `${report.summary.testsPassed}/${report.summary.testsRun}`;
+            document.getElementById('statSecurity').textContent = `${report.summary.securityScore}/100`;
+            document.getElementById('statFiles').textContent = report.summary.filesGenerated;
+            msg.textContent = report.message;
+        }
+
+        function toggleInputMode() {
+            isJsonMode = !isJsonMode;
+            const textInput = document.getElementById('textInput');
+            const rulesInput = document.getElementById('rulesInput');
+            const label = document.getElementById('inputLabel');
+            const toggle = document.querySelector('.toggle-link');
+            if (isJsonMode) {
+                textInput.style.display = 'none';
+                rulesInput.style.display = 'block';
+                label.textContent = '1. Define Logic Rules (JSON Array)';
+                toggle.textContent = 'Switch to English';
+            } else {
+                textInput.style.display = 'block';
+                rulesInput.style.display = 'none';
+                label.textContent = '1. Describe Logic (English)';
+                toggle.textContent = 'Switch to Raw JSON';
+            }
+        }
+
+        function parseMarkdown(md) {
+            let html = md
+                .replace(/^# (.*$)/gim, '<h1>$1</h1>')
+                .replace(/^## (.*$)/gim, '<h2>$1</h2>')
+                .replace(/^### (.*$)/gim, '<h3>$1</h3>')
+                .replace(/\*\*(.*)\*\*/gim, '<b>$1</b>')                .replace(/\*(.*)\*/gim, '<i>$1</i>')
+                .replace(/`([^`]+)`/gim, '<code>$1</code>')
+                .replace(/^\> (.*$)/gim, '<blockquote>$1</blockquote>')
+                .replace(/\n/gim, '<br>');
+            
+            html = html.replace(/\|(.+)\|\n\|(.+)\|\n((\|(.+)\|\n)+)/gim, (match) => {
+                return '<table>' + match.split('\n').map(line => {
+                    if(line.includes('---')) return '';
+                    const cells = line.split('|').filter(c => c.trim() !== '');
+                    if(line.trim().startsWith('|')) {
+                        return '<tr>' + cells.map(c => `<td>${c.trim()}</td>`).join('') + '</tr>';
+                    }
+                    return '';
+                }).join('') + '</table>';
+            });
+            return html;
+        }
+
+        // 🆕 WEEK 34: Feedback Function
+        function submitFeedback(type) {
+            const buttons = document.querySelectorAll('.btn-feedback');
+            buttons.forEach(b => b.classList.remove('active'));
+            
+            const selectedBtn = event.currentTarget;
+            selectedBtn.classList.add('active');
+            
+            if (type === 'up') {
+                Notifier.success('Thanks for the feedback! Glad it helped.');
+            } else {
+                Notifier.warning('Sorry to hear that. We will improve!');
+            }
+        }
+
+        async function generateCode() {
+            const btn = document.getElementById('genBtn');
+            const spinner = document.getElementById('spinner');
+            const btnText = document.getElementById('btnText');
+            const language = document.getElementById('languageSelect').value;
+            const output = document.getElementById('outputCode');
+            const docsOutput = document.getElementById('docsOutput');
+            const status = document.getElementById('statusMsg');
+            const atomCount = document.getElementById('atomCount');
+            const fileTabs = document.getElementById('fileTabs');
+            const graphOutput = document.getElementById('graphOutput');
+            const btnViewDocs = document.getElementById('btnViewDocs');
+            const feedbackWidget = document.getElementById('feedbackWidget');
+            const btnCopyAll = document.getElementById('btnCopyAll'); // 🆕 Get Button Reference
+
+            output.textContent = '// Generating...';
+            docsOutput.innerHTML = '';            status.textContent = 'Processing...';
+            status.className = 'status-bar';
+            btn.disabled = true;
+            spinner.style.display = 'block';
+            btnText.textContent = isJsonMode ? 'Working...' : '🧠 Thinking...';
+            document.getElementById('resultBox').classList.remove('visible');
+            fileTabs.style.display = 'none';
+            currentFiles = [];
+            currentReadme = '';
+            btnViewDocs.style.display = 'none';
+            btnCopyAll.style.display = 'none'; // 🆕 Hide Copy All initially
+            feedbackWidget.style.display = 'none';
+            graphOutput.innerHTML = '<p style="color:var(--text-secondary);">Generating graph...</p>';
+            currentDependencies = [];
+            currentSecurityIssues = [];
+
+            try {
+                let payload = { language };
+                if (isJsonMode) {
+                    const rules = JSON.parse(document.getElementById('rulesInput').value);
+                    payload.rules = rules;
+                    currentAtoms = rules;
+                    currentRules = rules;
+                } else {
+                    const text = document.getElementById('textInput').value;
+                    if (!text.trim()) throw new Error("Please describe your logic in English.");
+                    payload.text = text;
+                }
+                
+                const response = await fetch(API_GENERATE_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await response.json();
+
+                if (!response.ok) throw new Error(data.error || 'Server error');
+
+                if (data.memory) updateMemoryUI(data.memory);
+
+                if (data.dependencies) currentDependencies = [...new Set([...currentDependencies, ...data.dependencies])];
+                if (data.files) {
+                    data.files.forEach(f => {
+                        if (f.dependencies) currentDependencies = [...new Set([...currentDependencies, ...f.dependencies])];
+                        if (f.securityReport && f.securityReport.issues) {
+                            currentSecurityIssues = [...currentSecurityIssues, ...f.securityReport.issues];
+                        }
+                    });
+                }
+                if (data.securityReport && data.securityReport.issues) {                    currentSecurityIssues = [...currentSecurityIssues, ...data.securityReport.issues];
+                }
+
+                updateDependenciesUI(currentDependencies);
+                updateSecurityUI(currentSecurityIssues, data.securityReport ? data.securityReport.score : 100);
+                if (data.milestoneReport) updateMilestoneUI(data.milestoneReport);
+
+                if (data.readme) {
+                    currentReadme = data.readme;
+                    docsOutput.innerHTML = parseMarkdown(currentReadme);
+                    btnViewDocs.style.display = 'flex';
+                }
+
+                if (!data.isMultiFile && data.rules) {
+                    currentRules = data.rules;
+                    visualizeLogic({ rules: data.rules });
+                }
+
+                if (data.isMultiFile && data.files) {
+                    currentFiles = data.files;
+                    status.textContent = `✅ Success! Generated ${data.files.length} files.`;
+                    renderFileTabs(data.files);
+                    if (data.files.length > 0) {
+                        const mainFile = data.files.find(f => f.filename !== 'README.md') || data.files[0];
+                        output.textContent = mainFile.code;
+                        currentGeneratedCode = mainFile.code;
+                    }
+                    // 🆕 Show Copy All if multiple files
+                    if (data.files.length > 1) {
+                        btnCopyAll.style.display = 'flex';
+                    }
+                } else {
+                    currentGeneratedCode = data.code;
+                    currentAtoms = data.atoms || currentAtoms; 
+                    output.textContent = data.code;
+                    status.textContent = `✅ Success! Generated ${data.language} code.${data.usedAI ? ' (via AI)' : ''}`;
+                    atomCount.textContent = `Atoms Processed: ${data.atomCount}`;
+                }
+                
+                status.classList.add('status-success');
+                Notifier.success('Code generated successfully!');
+                feedbackWidget.style.display = 'flex';
+
+                const testBtn = document.getElementById('testBtn');
+                const testDataInput = document.getElementById('testDataInput');
+                const testBtnText = document.getElementById('testBtnText');
+                
+                if (data.language === 'python' && !data.isMultiFile) {
+                    testBtn.disabled = true;
+                    testBtn.style.backgroundColor = 'var(--text-secondary)';                    testBtn.style.cursor = 'not-allowed';
+                    testBtnText.textContent = '🚫 Test Unavailable (Python)';
+                    testDataInput.disabled = true;
+                    testDataInput.style.opacity = '0.5';
+                } else {
+                    testBtn.disabled = false;
+                    testBtn.style.backgroundColor = ''; 
+                    testBtn.style.cursor = 'pointer';
+                    testBtnText.textContent = '🧪 Run Test';
+                    testDataInput.disabled = false;
+                    testDataInput.style.opacity = '1';
+                }
+
+            } catch (error) {
+                output.textContent = `// ERROR: ${error.message}\n\n// Please check your input.`;
+                status.textContent = `❌ Failed: ${error.message}`;
+                status.classList.add('status-error');
+                atomCount.textContent = '';
+                graphOutput.innerHTML = '<p style="color:var(--error);">Graph generation failed.</p>';
+                
+                Notifier.handleApiError(error);
+            } finally {
+                btn.disabled = false;
+                spinner.style.display = 'none';
+                btnText.textContent = '✨ Generate Code';
+            }
+        }
+
+        async function visualizeLogic(payload) {
+            if (!payload.rules || payload.rules.length === 0) return;
+            try {
+                const response = await fetch(API_VISUALIZE_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ rules: payload.rules })
+                });
+                const data = await response.json();
+                if (data.success) document.getElementById('graphOutput').innerHTML = data.svg;
+            } catch (e) { console.error("Visualization error", e); }
+        }
+
+        function renderFileTabs(files) {
+            const fileTabs = document.getElementById('fileTabs');
+            fileTabs.innerHTML = '';
+            fileTabs.style.display = 'flex';
+            files.forEach((file, index) => {
+                const tab = document.createElement('div');
+                tab.className = `file-tab ${index === 0 ? 'active' : ''}`;
+                if(file.filename === 'README.md') tab.setAttribute('data-type', 'docs');
+                tab.textContent = file.filename;                tab.onclick = () => {
+                    document.querySelectorAll('.file-tab').forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+                    if(file.filename === 'README.md') {
+                        toggleView('docs');
+                        document.getElementById('docsOutput').innerHTML = parseMarkdown(file.code);
+                    } else {
+                        toggleView('code');
+                        document.getElementById('outputCode').textContent = file.code;
+                        currentGeneratedCode = file.code;
+                    }
+                };
+                fileTabs.appendChild(tab);
+            });
+        }
+
+        async function runTest() {
+            if (!currentGeneratedCode) { Notifier.warning('Please generate code first!'); return; }
+            const btn = document.getElementById('testBtn');
+            const spinner = document.getElementById('testSpinner');
+            const btnText = document.getElementById('testBtnText');
+            const testDataInput = document.getElementById('testDataInput').value;
+            const resultBox = document.getElementById('resultBox');
+            const resultOutput = document.getElementById('resultOutput');
+            const correctionLogDiv = document.getElementById('correctionLog');
+            const isAutoCorrect = document.getElementById('autoCorrectCheck').checked;
+            resultBox.classList.remove('visible', 'result-pass', 'result-fail', 'result-auto');
+            correctionLogDiv.style.display = 'none';
+            btn.disabled = true;
+            spinner.style.display = 'block';
+            btnText.textContent = 'Running...';
+
+            try {
+                const testData = JSON.parse(testDataInput);
+                const url = isAutoCorrect ? API_TEST_AUTO_URL : API_TEST_URL;
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ code: currentGeneratedCode, testData: testData, atoms: currentAtoms })
+                });
+                const data = await response.json();
+                resultBox.classList.add('visible');
+                if (data.success) {
+                    if (data.correctionLog && data.correctionLog.length > 0) {
+                        resultBox.classList.add('result-auto');
+                        resultOutput.textContent = `✅ PASSED (Auto-Corrected)\n\nOutput: ${JSON.stringify(data.output, null, 2)}`;
+                        correctionLogDiv.innerHTML = '<strong>🤖 Corrections Made:</strong><br>' + data.correctionLog.map(l => `• ${l}`).join('<br>');
+                        correctionLogDiv.style.display = 'block';
+                    } else {
+                        resultBox.classList.add('result-pass');                        resultOutput.textContent = `✅ PASSED\n\nOutput: ${JSON.stringify(data.output, null, 2)}`;
+                    }
+                    Notifier.success('Test passed!');
+                } else {
+                    resultBox.classList.add('result-fail');
+                    let msg = `❌ FAILED\n\nError: ${data.error}`;
+                    if (data.correctionLog && data.correctionLog.length > 0) {
+                        msg += `\n\nAttempts made to fix:`;
+                        correctionLogDiv.innerHTML = '<strong>⚠️ Failed Corrections:</strong><br>' + data.correctionLog.map(l => `• ${l}`).join('<br>');
+                        correctionLogDiv.style.display = 'block';
+                    }
+                    resultOutput.textContent = msg;
+                    Notifier.error('Test failed.');
+                }
+            } catch (error) {
+                resultBox.classList.add('visible', 'result-fail');
+                resultOutput.textContent = `❌ CRITICAL ERROR\n\n${error.message}`;
+                Notifier.handleApiError(error);
+            } finally {
+                btn.disabled = false;
+                spinner.style.display = 'none';
+                btnText.textContent = '🧪 Run Test';
+            }
+        }
+
+        async function downloadProject() {
+            if (!currentAtoms && currentFiles.length === 0) { Notifier.warning('No project to download!'); return; }
+            const btn = document.getElementById('dlBtn');
+            const originalText = btn.textContent;
+            btn.textContent = '⏳ Zipping...';
+            btn.disabled = true;
+            try {
+                const payload = currentAtoms ? { rules: currentAtoms } : { files: currentFiles }; 
+                const response = await fetch(API_DOWNLOAD_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                if (!response.ok) throw new Error('Failed to generate zip');
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'skyline-project.zip';
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+                btn.textContent = '✅ Downloaded!';
+                Notifier.success('Project downloaded!');                setTimeout(() => { btn.textContent = originalText; btn.disabled = false; }, 2000);
+            } catch (error) {
+                Notifier.error('Download failed: ' + error.message);
+                btn.textContent = originalText;
+                btn.disabled = false;
+            }
+        }
+
+        function copyCode() {
+            const code = document.getElementById('outputCode').textContent;
+            navigator.clipboard.writeText(code).then(() => {
+                Notifier.success('Code copied to clipboard!');
+            }).catch(err => Notifier.error('Failed to copy: ' + err));
+        }
+
+        // 🆕 FUNCTION: Copy All Code (Already existed, now connected to button)
+        function copyAllCode() {
+            if (currentFiles.length === 0) { Notifier.warning('No files to copy!'); return; }
+            let allCode = "";
+            currentFiles.forEach(file => {
+                allCode += `// --- FILE: ${file.filename} ---\n`;
+                allCode += `${file.code}\n\n`;
+            });
+            navigator.clipboard.writeText(allCode).then(() => {
+                Notifier.success('All files copied to clipboard!');
+            }).catch(err => Notifier.error('Failed to copy all: ' + err));
+        }
+    </script>
+</body>
+</html>
