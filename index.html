@@ -96,7 +96,8 @@
         }
         textarea.json-mode { font-family: 'Courier New', Courier, monospace; font-size: 0.9rem; }
         textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2); }
-        textarea:disabled { opacity: 0.5; cursor: not-allowed; }        .controls { display: flex; gap: 10px; margin-top: 15px; flex-wrap: wrap; align-items: center; }
+        textarea:disabled { opacity: 0.5; cursor: not-allowed; }
+        .controls { display: flex; gap: 10px; margin-top: 15px; flex-wrap: wrap; align-items: center; }
 
         select {
             padding: 10px 15px;
@@ -144,8 +145,8 @@
 
         .checkbox-wrapper {
             display: flex;
-            align-items: center;
-            gap: 8px;            color: var(--text-secondary);
+            align-items: center;            gap: 8px;
+            color: var(--text-secondary);
             font-size: 0.9rem;
             background: var(--bg-color);
             padding: 8px 12px;
@@ -193,8 +194,8 @@
         pre, .markdown-content {
             background-color: var(--code-bg);
             padding: 20px;
-            border-radius: 8px;
-            overflow-x: auto;            border: 1px solid var(--border);
+            border-radius: 8px;            overflow-x: auto;
+            border: 1px solid var(--border);
             min-height: 200px;
             color: #e2e8f0;
             font-family: 'Courier New', Courier, monospace;
@@ -242,8 +243,7 @@
         .dependencies-title { color: var(--package); font-weight: bold; margin-bottom: 8px; }
         .dependencies-list { list-style: none; color: var(--text-secondary); }
         .dependencies-list li { margin-bottom: 4px; display: flex; justify-content: space-between; }
-        .install-cmd { background: var(--code-bg); padding: 8px; border-radius: 4px; font-family: monospace; color: var(--package); margin-top: 8px; display: block; font-size: 0.85rem; }
-        .security-panel { background: rgba(244, 63, 94, 0.1); border: 1px solid var(--security); border-radius: 8px; padding: 15px; font-size: 0.9rem; display: none; }
+        .install-cmd { background: var(--code-bg); padding: 8px; border-radius: 4px; font-family: monospace; color: var(--package); margin-top: 8px; display: block; font-size: 0.85rem; }        .security-panel { background: rgba(244, 63, 94, 0.1); border: 1px solid var(--security); border-radius: 8px; padding: 15px; font-size: 0.9rem; display: none; }
         .security-panel.visible { display: block; }
         .security-title { color: var(--security); font-weight: bold; margin-bottom: 8px; display: flex; justify-content: space-between; }
         .security-score { font-size: 1.1rem; }
@@ -341,8 +341,7 @@
 </head>
 <body>
     <!-- 🆕 WEEK 34: Toast Container -->
-    <div id="toast-container" class="toast-container"></div>
-    <div class="container">
+    <div id="toast-container" class="toast-container"></div>    <div class="container">
         <header>
             <h1>🏙️ Skyline AA-1</h1>
             <p>Intelligent Multi-Language Code Generator (Week 34)</p>
@@ -390,8 +389,8 @@
 
         <!-- 🆕 WEEK 27: Dependencies Card -->
         <div id="dependenciesCard" class="card dependencies-panel">
-            <div class="dependencies-title">📦 Detected Dependencies</div>            <ul id="dependenciesList" class="dependencies-list"></ul>
-            <code id="installCmd" class="install-cmd" style="display:none;"></code>
+            <div class="dependencies-title">📦 Detected Dependencies</div>
+            <ul id="dependenciesList" class="dependencies-list"></ul>            <code id="installCmd" class="install-cmd" style="display:none;"></code>
         </div>
         <!-- Input Section -->
         <div class="card">
@@ -439,8 +438,8 @@
             <!-- 🆕 WEEK 26: Graph View -->
             <div id="graphOutput" class="graph-container">
                 <p style="color:var(--text-secondary);">Generate code to see the logic graph.</p>
-            </div>            
-            <div class="status-bar">
+            </div>
+                        <div class="status-bar">
                 <span id="statusMsg">Ready</span>
                 <span id="atomCount"></span>
             </div>
@@ -481,14 +480,17 @@
     <script src="ui-notifier.js"></script>
 
     <script>
-        const API_GENERATE_URL = 'http://localhost:5001/api/generate';
-        const API_VISUALIZE_URL = 'http://localhost:5001/api/visualize';
-        const API_TEST_URL = 'http://localhost:5001/api/test';
-        const API_TEST_AUTO_URL = 'http://localhost:5001/api/test-auto';
-        const API_DOWNLOAD_URL = 'http://localhost:5001/api/download';
-        const API_MEMORY_URL = 'http://localhost:5001/api/memory';
-        const API_CLEAR_MEMORY_URL = 'http://localhost:5001/api/clear-memory';
-                let currentGeneratedCode = '';
+        // 🆕 FIXED: Use Relative Paths for Production Compatibility
+        // This automatically works on localhost:5001 AND https://skyline-aa-1-0.onrender.com
+        const API_BASE = ''; 
+        const API_GENERATE_URL = `${API_BASE}/api/generate`;
+        const API_VISUALIZE_URL = `${API_BASE}/api/visualize`;
+        const API_TEST_URL = `${API_BASE}/api/test`;
+        const API_TEST_AUTO_URL = `${API_BASE}/api/test-auto`;
+        const API_DOWNLOAD_URL = `${API_BASE}/api/download`;
+        const API_MEMORY_URL = `${API_BASE}/api/memory`;        const API_CLEAR_MEMORY_URL = `${API_BASE}/api/clear-memory`;
+
+        let currentGeneratedCode = '';
         let currentFiles = [];
         let currentAtoms = [];
         let currentReadme = '';
@@ -536,8 +538,8 @@
                 updateMemoryUI(data.memory);
             } catch (e) { console.error("Failed to load memory", e); }
         }
-
-        async function clearMemory() {            try {
+        async function clearMemory() {
+            try {
                 await fetch(API_CLEAR_MEMORY_URL, { method: 'POST' });
                 loadMemory();
                 Notifier.success('Memory cleared successfully!');
@@ -584,9 +586,9 @@
         function updateDependenciesUI(deps) {
             const card = document.getElementById('dependenciesCard');
             const list = document.getElementById('dependenciesList');
-            const cmd = document.getElementById('installCmd');
-            if (!deps || deps.length === 0) { card.classList.remove('visible'); return; }
-            card.classList.add('visible');            list.innerHTML = '';
+            const cmd = document.getElementById('installCmd');            if (!deps || deps.length === 0) { card.classList.remove('visible'); return; }
+            card.classList.add('visible');
+            list.innerHTML = '';
             deps.forEach(dep => {
                 const li = document.createElement('li');
                 li.innerHTML = `<span>${dep}</span>`;
@@ -633,9 +635,9 @@
         function parseMarkdown(md) {
             let html = md
                 .replace(/^# (.*$)/gim, '<h1>$1</h1>')
-                .replace(/^## (.*$)/gim, '<h2>$1</h2>')
-                .replace(/^### (.*$)/gim, '<h3>$1</h3>')
-                .replace(/\*\*(.*)\*\*/gim, '<b>$1</b>')                .replace(/\*(.*)\*/gim, '<i>$1</i>')
+                .replace(/^## (.*$)/gim, '<h2>$1</h2>')                .replace(/^### (.*$)/gim, '<h3>$1</h3>')
+                .replace(/\*\*(.*)\*\*/gim, '<b>$1</b>')
+                .replace(/\*(.*)\*/gim, '<i>$1</i>')
                 .replace(/`([^`]+)`/gim, '<code>$1</code>')
                 .replace(/^\> (.*$)/gim, '<blockquote>$1</blockquote>')
                 .replace(/\n/gim, '<br>');
@@ -681,10 +683,10 @@
             const graphOutput = document.getElementById('graphOutput');
             const btnViewDocs = document.getElementById('btnViewDocs');
             const feedbackWidget = document.getElementById('feedbackWidget');
-            const btnCopyAll = document.getElementById('btnCopyAll'); // 🆕 Get Button Reference
-
+            const btnCopyAll = document.getElementById('btnCopyAll');
             output.textContent = '// Generating...';
-            docsOutput.innerHTML = '';            status.textContent = 'Processing...';
+            docsOutput.innerHTML = '';
+            status.textContent = 'Processing...';
             status.className = 'status-bar';
             btn.disabled = true;
             spinner.style.display = 'block';
@@ -694,7 +696,7 @@
             currentFiles = [];
             currentReadme = '';
             btnViewDocs.style.display = 'none';
-            btnCopyAll.style.display = 'none'; // 🆕 Hide Copy All initially
+            btnCopyAll.style.display = 'none';
             feedbackWidget.style.display = 'none';
             graphOutput.innerHTML = '<p style="color:var(--text-secondary);">Generating graph...</p>';
             currentDependencies = [];
@@ -731,9 +733,9 @@
                         if (f.securityReport && f.securityReport.issues) {
                             currentSecurityIssues = [...currentSecurityIssues, ...f.securityReport.issues];
                         }
-                    });
-                }
-                if (data.securityReport && data.securityReport.issues) {                    currentSecurityIssues = [...currentSecurityIssues, ...data.securityReport.issues];
+                    });                }
+                if (data.securityReport && data.securityReport.issues) {
+                    currentSecurityIssues = [...currentSecurityIssues, ...data.securityReport.issues];
                 }
 
                 updateDependenciesUI(currentDependencies);
@@ -760,7 +762,6 @@
                         output.textContent = mainFile.code;
                         currentGeneratedCode = mainFile.code;
                     }
-                    // 🆕 Show Copy All if multiple files
                     if (data.files.length > 1) {
                         btnCopyAll.style.display = 'flex';
                     }
@@ -781,8 +782,8 @@
                 const testBtnText = document.getElementById('testBtnText');
                 
                 if (data.language === 'python' && !data.isMultiFile) {
-                    testBtn.disabled = true;
-                    testBtn.style.backgroundColor = 'var(--text-secondary)';                    testBtn.style.cursor = 'not-allowed';
+                    testBtn.disabled = true;                    testBtn.style.backgroundColor = 'var(--text-secondary)';
+                    testBtn.style.cursor = 'not-allowed';
                     testBtnText.textContent = '🚫 Test Unavailable (Python)';
                     testDataInput.disabled = true;
                     testDataInput.style.opacity = '0.5';
@@ -830,8 +831,8 @@
             files.forEach((file, index) => {
                 const tab = document.createElement('div');
                 tab.className = `file-tab ${index === 0 ? 'active' : ''}`;
-                if(file.filename === 'README.md') tab.setAttribute('data-type', 'docs');
-                tab.textContent = file.filename;                tab.onclick = () => {
+                if(file.filename === 'README.md') tab.setAttribute('data-type', 'docs');                tab.textContent = file.filename;
+                tab.onclick = () => {
                     document.querySelectorAll('.file-tab').forEach(t => t.classList.remove('active'));
                     tab.classList.add('active');
                     if(file.filename === 'README.md') {
@@ -879,8 +880,8 @@
                         resultOutput.textContent = `✅ PASSED (Auto-Corrected)\n\nOutput: ${JSON.stringify(data.output, null, 2)}`;
                         correctionLogDiv.innerHTML = '<strong>🤖 Corrections Made:</strong><br>' + data.correctionLog.map(l => `• ${l}`).join('<br>');
                         correctionLogDiv.style.display = 'block';
-                    } else {
-                        resultBox.classList.add('result-pass');                        resultOutput.textContent = `✅ PASSED\n\nOutput: ${JSON.stringify(data.output, null, 2)}`;
+                    } else {                        resultBox.classList.add('result-pass');
+                        resultOutput.textContent = `✅ PASSED\n\nOutput: ${JSON.stringify(data.output, null, 2)}`;
                     }
                     Notifier.success('Test passed!');
                 } else {
@@ -928,8 +929,8 @@
                 a.click();
                 window.URL.revokeObjectURL(url);
                 document.body.removeChild(a);
-                btn.textContent = '✅ Downloaded!';
-                Notifier.success('Project downloaded!');                setTimeout(() => { btn.textContent = originalText; btn.disabled = false; }, 2000);
+                btn.textContent = '✅ Downloaded!';                Notifier.success('Project downloaded!');
+                setTimeout(() => { btn.textContent = originalText; btn.disabled = false; }, 2000);
             } catch (error) {
                 Notifier.error('Download failed: ' + error.message);
                 btn.textContent = originalText;
@@ -944,7 +945,7 @@
             }).catch(err => Notifier.error('Failed to copy: ' + err));
         }
 
-        // 🆕 FUNCTION: Copy All Code (Already existed, now connected to button)
+        // 🆕 FUNCTION: Copy All Code
         function copyAllCode() {
             if (currentFiles.length === 0) { Notifier.warning('No files to copy!'); return; }
             let allCode = "";
@@ -958,4 +959,4 @@
         }
     </script>
 </body>
-</html>
+    </html>
